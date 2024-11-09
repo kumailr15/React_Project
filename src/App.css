@@ -1,3 +1,4 @@
+
 .App {
   text-align: center;
 }
@@ -32,7 +33,50 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
+}
+
+/* App.css */
+.box {
+  border: 2px solid #000;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+  background-color: #f8f9fa;
+  margin-bottom: 20px;
+}
+
+.simulation-box {
+  border: 2px solid #000;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+  background-color: #f8f9fa;
+  padding: 15px;
+  height: 300px;
+  overflow: auto;
+}
+
+.process {
+  width: 100px;
+  height: 30px;
+  margin: 5px;
+  display: inline-block;
+  text-align: center;
+  line-height: 30px;
+  border-radius: 5px;
+  color: #fff;
+}
+
+.btn {
+  margin-right: 15px;
+  margin-top: 10px;
+}
+
+.table-bordered th,
+.table-bordered td {
+  border: 1px solid #dee2e6;
+}
+
+.mt-4 {
+  margin-top: 1.5rem;
 }
