@@ -14,15 +14,17 @@ function App() {
         <h1 className="text-center mb-4">OS Scheduling Algorithms Simulation</h1>
         <nav className="mb-4">
           <NavLink to="/" className="btn btn-primary mr-2">FCFS</NavLink>
-          <NavLink to="/roundrobin" className="btn btn-primary mr-2">Round Robin</NavLink>
           <NavLink to="/sjf" className="btn btn-primary mr-2">SJF</NavLink>
           <NavLink to="/srtf" className="btn btn-primary">SRTF</NavLink>
+          <NavLink to="/roundrobin" className="btn btn-primary mr-2">Round Robin</NavLink>
+
         </nav>
         <Routes>
           <Route path="/" element={<FCFS />} />
-          <Route path="/roundrobin" element={<RoundRobin />} />
           <Route path="/sjf" element={<SJF />} />
           <Route path="/srtf" element={<SRTF />} />
+          <Route path="/roundrobin" element={<RoundRobin />} />
+
         </Routes>
       </div>
     </Router>
