@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 
 function RoundRobin() {
     const [numProcesses, setNumProcesses] = useState(0);
-    const [timeQuantum, setTimeQuantum] = useState(''); // Set time quantum to an empty string by default
+    const [timeQuantum, setTimeQuantum] = useState('');
     const [processes, setProcesses] = useState([]);
     const [results, setResults] = useState([]);
     const [simulationSequence, setSimulationSequence] = useState([]);
@@ -22,8 +23,8 @@ function RoundRobin() {
 
     const handleInputChange = (index, field, value) => {
         const newProcesses = [...processes];
-        newProcesses[index][field] = value === "" ? "" : parseInt(value); // Handle empty input
-        newProcesses[index].remainingBurst = value === "" ? "" : parseInt(value); // Initialize remaining burst time
+        newProcesses[index][field] = value === "" ? "" : parseInt(value);
+        if (field === "burst") newProcesses[index].remainingBurst = parseInt(value);
         setProcesses(newProcesses);
     };
 
@@ -37,11 +38,16 @@ function RoundRobin() {
         const resultsData = [];
         const sequence = [];
         const queue = [];
-        const processList = [...processes].map(process => ({ ...process }));
+        const processList = processes.map(process => ({
+            ...process,
+            remainingBurst: process.burst
+        }));
 
-        processList.forEach(process => process.remainingBurst = process.burst); // Reset remaining burst times
+        // Sort processList by arrival time
+        processList.sort((a, b) => a.arrival - b.arrival);
 
         while (processList.some(p => p.remainingBurst > 0) || queue.length > 0) {
+            // Add new processes to the queue that have arrived by currentTime
             // eslint-disable-next-line no-loop-func
             processList.forEach(process => {
                 if (process.arrival <= currentTime && process.remainingBurst > 0 && !queue.includes(process)) {
@@ -52,25 +58,38 @@ function RoundRobin() {
             if (queue.length > 0) {
                 const process = queue.shift();
 
-                if (process.remainingBurst > timeQuantum) {
-                    currentTime += timeQuantum;
-                    process.remainingBurst -= timeQuantum;
-                    sequence.push({ id: process.id, time: currentTime });
-                } else {
-                    currentTime += process.remainingBurst;
-                    process.remainingBurst = 0;
+                // Calculate the time slice to use: either the time quantum or the remaining burst time
+                const timeSlice = Math.min(timeQuantum, process.remainingBurst);
+                currentTime += timeSlice;
+                process.remainingBurst -= timeSlice;
+
+                // Record the sequence of the process
+                sequence.push({ id: process.id, time: currentTime });
+
+                if (process.remainingBurst === 0) {
                     process.completion = currentTime;
                     process.turnaround = process.completion - process.arrival;
                     process.waiting = process.turnaround - process.burst;
                     resultsData.push(process);
-                    sequence.push({ id: process.id, time: currentTime });
-                }
-
-                if (process.remainingBurst > 0) {
+                } else {
+                    // Re-enqueue the process if it has remaining burst time
                     queue.push(process);
                 }
+
+                // Add newly arrived processes to the queue during this time slice
+                // eslint-disable-next-line no-loop-func
+                processList.forEach(newProcess => {
+                    if (newProcess.arrival <= currentTime && newProcess.remainingBurst > 0 && !queue.includes(newProcess) && newProcess.id !== process.id) {
+                        queue.push(newProcess);
+                    }
+                });
             } else {
-                currentTime += 1;
+                // If no processes are in the queue, move the currentTime to the next process arrival time
+                // eslint-disable-next-line no-loop-func
+                const nextArrival = processList.find(p => p.remainingBurst > 0 && p.arrival > currentTime);
+                if (nextArrival) {
+                    currentTime = nextArrival.arrival;
+                }
             }
         }
 
@@ -112,7 +131,7 @@ function RoundRobin() {
                     <input
                         type="number"
                         className="form-control"
-                        value={timeQuantum}  // Empty value allowed
+                        value={timeQuantum}
                         onChange={(e) => setTimeQuantum(e.target.value)}
                         min="1"
                     />
